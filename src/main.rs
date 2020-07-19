@@ -15,12 +15,14 @@ fn main() {
     termios.c_lflag &= !(ECHO | ICANON);
     tcsetattr(fd, TCSANOW, &termios).unwrap();
 
+    // FIXME : What is happening here?
     let mut character = [0];
     loop {
         match stdin.read(&mut character) {
             Ok(n) => {
                 println!("{} bytes read", n);
-                println!("{:?}", character[0] as char);
+                println!("{:?}", character[0]); // FIXME : Why do I have to use {:?}
+                println!("{:?}", character[0] as char); // FIXME: How does 'as char' work?
             }
             Err(error) => println!("{}", error),
         }
