@@ -1,7 +1,6 @@
-use std::io;
-use std::io::Read;
+use std::io::{self, Read, Write};
 use std::os::unix::io::AsRawFd;
-use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
+use termios::{tcsetattr, Termios, ECHO, ICANON, ICRNL, IEXTEN, ISIG, OPOST, TCSANOW};
 
 fn main() {
     println!("Hello, world!");
@@ -11,8 +10,11 @@ fn main() {
 
     let fd = stdin.as_raw_fd();
 
+    // FIXME : What does unwrap do?
     let mut termios = Termios::from_fd(fd).unwrap();
-    termios.c_lflag &= !(ECHO | ICANON);
+    termios.c_lflag &= !(ECHO | ICANON | ISIG | IEXTEN);
+    termios.c_iflag &= !(ICRNL);
+    termios.c_oflag &= !(OPOST);
     tcsetattr(fd, TCSANOW, &termios).unwrap();
 
     // FIXME : What is happening here?
@@ -20,15 +22,20 @@ fn main() {
     loop {
         match stdin.read(&mut character) {
             Ok(n) => {
-                println!("{} bytes read", n);
-                println!("{:?}", character[0]); // FIXME : Why do I have to use {:?}
+                print!("{} bytes read\r\n", n);
                 if character[0].is_ascii_control() {
-                    break;
+                    print!("{:?}\r\n", character[0] as char); // FIXME: How does 'as char' work?
                 } else {
-                    println!("{:?}", character[0] as char); // FIXME: How does 'as char' work?
+                    print!("{:?}\r\n", character[0] as char); // FIXME: How does 'as char' work?
+                                                              // FIXME - how do I write 'q' instead of 113 here
+                    if character[0] == 113 {
+                        break;
+                    }
                 }
+                print!("{:?}\r\n", character[0]); // FIXME : Why do I have to use {:?}
             }
-            Err(error) => println!("{}", error),
+            Err(error) => print!("{}\r\n", error),
         }
+        io::stdout().flush().unwrap();
     }
 }
