@@ -22,7 +22,11 @@ fn main() {
             Ok(n) => {
                 println!("{} bytes read", n);
                 println!("{:?}", character[0]); // FIXME : Why do I have to use {:?}
-                println!("{:?}", character[0] as char); // FIXME: How does 'as char' work?
+                if character[0].is_ascii_control() {
+                    break;
+                } else {
+                    println!("{:?}", character[0] as char); // FIXME: How does 'as char' work?
+                }
             }
             Err(error) => println!("{}", error),
         }
