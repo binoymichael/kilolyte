@@ -25,17 +25,10 @@ fn main() {
         character[0] = 0;
         match stdin.read(&mut character) {
             Ok(_) => {
-                //print!("{} bytes read\r\n", n);
-                if character[0].is_ascii_control() {
-                    print!("{:?}\r\n", character[0] as char); // FIXME: How does 'as char' work?
-                } else {
-                    print!("{:?}\r\n", character[0] as char); // FIXME: How does 'as char' work?
-                                                              // FIXME - how do I write 'q' instead of 113 here
-                    if character[0] == 113 {
-                        break;
-                    }
+                print!("{:?}\r\n", character[0] as char); // FIXME: How does 'as char' work?
+                if character[0] == 17 {
+                    break;
                 }
-                //print!("{:?}\r\n", character[0]); // FIXME : Why do I have to use {:?}
             }
             Err(error) => print!("{}\r\n", error),
         }
